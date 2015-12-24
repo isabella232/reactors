@@ -10,13 +10,31 @@ def simplify_name(r):
 
     return name.rsplit('-', 1)[0]
 
+def construction_year(r):
+    d = r['Construction Date']
+
+    if not d:
+        return None
+
+    return d.year
+
+def grid_year(r):
+    d = r['Grid Date']
+
+    if not d:
+        return None
+
+    return d.year
+
 def main():
     locations = agate.Table.from_csv('locations.csv')
 
     reactors = agate.Table.from_csv('reactors.csv')
 
     reactors = reactors.compute([
-        ('simple_name', agate.Formula(agate.Text(), simplify_name))
+        ('simple_name', agate.Formula(agate.Text(), simplify_name)),
+        ('construction_year', agate.Formula(agate.Number(), construction_year)),
+        ('grid_year', agate.Formula(agate.Number(), grid_year))
     ])
 
     reactors = reactors.join(locations, 'simple_name', 'name')
