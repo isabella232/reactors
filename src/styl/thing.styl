@@ -15,9 +15,6 @@ border-radius()
   // font-style bold
   margin 15px 0px 10px
 
-#map
-  width: 100%
-
 svg
   background-color: $qz-map-water
 
@@ -26,64 +23,14 @@ svg
   stroke-width: 1px
   fill: $qz-map-land-fill
 
-  &.term-less
-    fill: #51b2e5
+.reactors
+  circle
+    fill: $qz-blue-1
 
-  &.term-50
-    fill: #b4d8e3
-
-  &.term-middle
-    fill: #ffffe0
-
-  &.term-70
-    fill: #e9c8cb
-
-  &.term-more
-    fill: #d190b6
-
-ul#legend
-  padding: 0
-  padding 10px 0
-  list-style-type: none
-
-  li
-    display: inline-block
-    margin: 0 18px 0 0
-    padding: 0
-    line-height: 15px
-
-    b
-      display: inline-block
-      width: 15px
-      height: 15px
-      margin-right: 6px
-      float: left
-      border: 1px solid $qz-map-land-stroke
-
-    div
-      whitespace: nowrap
-      fill: $qz-gray-2
-      font-size: 12px
-      font-family: 'AdelleSans-Regular', Helvetica, Arial, sans-serif
-      float: left;
-
-    &.term-less b
-      background-color: #51b2e5
-
-    &.term-50 b
-      background-color: #b4d8e3
-
-    &.term-middle b
-      background-color: #ffffe0
-
-    &.term-70 b
-      background-color: #e9c8cb
-
-    &.term-more b
-      background-color: #d190b6
-
-    &.term-other b
-      background-color: $qz-map-land-fill
+  text
+    font-size: 0.5em
+    text-anchor: middle
+    dominant-baseline: middle
 
 div.clear
   clear: both

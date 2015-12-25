@@ -4,7 +4,6 @@ var request = require('d3-request');
 require("d3-geo-projection")(d3);
 var topojson = require('topojson');
 var _ = require('lodash');
-var textures = require('textures');
 
 var fm = require('./fm');
 var throttle = require('./throttle');
@@ -13,17 +12,20 @@ var features = require('./detectFeatures')();
 // Globals
 var DEFAULT_WIDTH = 940;
 var MOBILE_THRESHOLD = 600;
+var PLAYBACK_SPEED = 200;
 
 var bordersData = null;
 var reactorsData = null;
 
 var isMobile = false;
 
+var playbackYear = 1955;
+
 function init() {
   request.json('data/borders-topo.json', function(error, data) {
     bordersData = topojson.feature(data, data['objects']['ne_110m_admin_0_countries']);
 
-    request.csv('data/reactors.csv', function(error, data) {
+    request.json('data/reactors.json', function(error, data) {
       reactorsData = data;
 
       render();
@@ -37,7 +39,7 @@ function onResize() {
 }
 
 function render() {
-  var width = $('#map').width();
+  var width = $('#interactive-content').width();
 
   if (width <= MOBILE_THRESHOLD) {
       isMobile = true;
@@ -45,15 +47,26 @@ function render() {
       isMobile = false;
   }
 
+  playbackYear = playbackYear + 1;
+
+  if (playbackYear > 2015) {
+    playbackYear = 1955;
+  }
+
   renderMap({
     container: '#map',
     width: width,
     borders: bordersData,
-    reactors: reactorsData
+    sites: reactorsData['sites'],
+    year: reactorsData['years'][playbackYear]
   });
+
+  $('#year').text(playbackYear);
 
   // Resize
   fm.resize()
+
+  _.delay(render, PLAYBACK_SPEED);
 }
 
 /*
@@ -109,17 +122,6 @@ function renderMap(config) {
       .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
 
     /*
-     * Textures
-     */
-    // var usTexture = textures.lines()
-    //   .size(15 * scaleFactor)
-    //   .strokeWidth(5 * scaleFactor)
-    //   .stroke('#d190b6')
-    //   .background('#e9c8cb');
-    //
-    // chartElement.call(usTexture);
-
-    /*
      * Create geographic elements.
      */
     var borders = chartElement.append('g')
@@ -133,21 +135,59 @@ function renderMap(config) {
         })
         .attr('d', geoPath);
 
-      var reactors = chartElement.append('g')
-        .attr('class', 'reactors');
+    var reactors = chartElement.append('g')
+      .attr('class', 'reactors');
 
-      reactors.selectAll('circle')
-        .data(config['reactors'])
-        .enter().append('circle')
-					.attr('r', 5)
-					.attr('cx', function(d) {
-						console.log(d);
-						return projection([d['lng'], d['lat']])[0];
-					})
-					.attr('cy', function(d) {
-						return projection([d['lng'], d['lat']])[1];
-					})
-					.style('fill', 'red');
+    reactors.selectAll('circle')
+      .data(config['year'])
+      .enter().append('circle')
+        .attr('r', 3)
+        .attr('cx', function(d) {
+          var coords = config['sites'][d[0]];
+
+          if (_.isUndefined(coords)) {
+            return 0;
+          }
+
+          return projection(coords)[0];
+        })
+        .attr('cy', function(d) {
+          var coords = config['sites'][d[0]];
+
+          if (_.isUndefined(coords)) {
+            return 0;
+          }
+
+          return projection(coords)[1];
+        })
+        .attr('class', function(d) {
+          return d[1];
+        });
+
+    // reactors.selectAll('text')
+    //   .data(config['year'])
+    //   .enter().append('text')
+    //     .attr('x', function(d) {
+    //       var coords = config['sites'][d[0]];
+    //
+    //       if (_.isUndefined(coords)) {
+    //         return 0;
+    //       }
+    //
+    //       return projection(coords)[0];
+    //     })
+    //     .attr('y', function(d) {
+    //       var coords = config['sites'][d[0]];
+    //
+    //       if (_.isUndefined(coords)) {
+    //         return 0;
+    //       }
+    //
+    //       return projection(coords)[1];
+    //     })
+    //     .text(function(d) {
+    //       return d[1];
+    //     });
 }
 
 $(document).ready(function () {
