@@ -12,14 +12,20 @@ var features = require('./detectFeatures')();
 // Globals
 var DEFAULT_WIDTH = 940;
 var MOBILE_THRESHOLD = 600;
-var PLAYBACK_SPEED = 200;
+var PLAYBACK_SPEED = 400;
+var FIRST_YEAR = 1955;
+var LAST_YEAR = 2015;
 
 var bordersData = null;
 var reactorsData = null;
+var yearElement = null;
+var playButtonElement = null;
 
 var isMobile = false;
-
-var playbackYear = 1955;
+var playbackYear = FIRST_YEAR;
+var isPlaying = false;
+var hasPlayed = false;
+var restarting = false;
 
 function init() {
   request.json('data/borders-topo.json', function(error, data) {
@@ -38,6 +44,18 @@ function onResize() {
   render()
 }
 
+function onPlayButtonClicked() {
+  d3.event.preventDefault();
+
+  if (playbackYear == LAST_YEAR) {
+    restarting = true;
+  }
+
+  playbackYear = FIRST_YEAR;
+  isPlaying = true;
+  render();
+}
+
 function render() {
   var width = $('#interactive-content').width();
 
@@ -47,10 +65,18 @@ function render() {
       isMobile = false;
   }
 
-  playbackYear = playbackYear + 1;
+  if (isPlaying) {
+    // Don't immediately advance if just showing first year
+    if (restarting) {
+      restarting = false;
+    } else {
+      playbackYear = playbackYear + 1;
 
-  if (playbackYear > 2015) {
-    playbackYear = 1955;
+      if (playbackYear == LAST_YEAR) {
+        isPlaying = false;
+        hasPlayed = true;
+      }
+    }
   }
 
   renderMap({
@@ -61,12 +87,12 @@ function render() {
     year: reactorsData['years'][playbackYear]
   });
 
-  $('#year').text(playbackYear);
-
   // Resize
   fm.resize()
 
-  _.delay(render, PLAYBACK_SPEED);
+  if (isPlaying) {
+    _.delay(render, PLAYBACK_SPEED);
+  }
 }
 
 /*
@@ -141,7 +167,7 @@ function renderMap(config) {
     reactors.selectAll('circle')
       .data(config['year'])
       .enter().append('circle')
-        .attr('r', 3)
+        .attr('r', isMobile ? 1 : 2)
         .attr('cx', function(d) {
           var coords = config['sites'][d[0]];
 
@@ -161,33 +187,55 @@ function renderMap(config) {
           return projection(coords)[1];
         })
         .attr('class', function(d) {
-          return d[1];
+          var cores = d[1];
+          var construction  = cores['construction'] || 0;
+          var operational = cores['operational'] || 0;
+          var shutdown = cores['shutdown'] || 0;
+
+          if (construction > 0) {
+            return 'construction';
+          } else if (shutdown > 0 && operational == 0) {
+            return 'shutdown';
+          } else {
+            return 'operational';
+          }
+
+          return null;
         });
 
-    // reactors.selectAll('text')
-    //   .data(config['year'])
-    //   .enter().append('text')
-    //     .attr('x', function(d) {
-    //       var coords = config['sites'][d[0]];
-    //
-    //       if (_.isUndefined(coords)) {
-    //         return 0;
-    //       }
-    //
-    //       return projection(coords)[0];
-    //     })
-    //     .attr('y', function(d) {
-    //       var coords = config['sites'][d[0]];
-    //
-    //       if (_.isUndefined(coords)) {
-    //         return 0;
-    //       }
-    //
-    //       return projection(coords)[1];
-    //     })
-    //     .text(function(d) {
-    //       return d[1];
-    //     });
+    // Year display
+    chartElement.append('text')
+      .attr('class', 'year')
+      .attr('transform', 'translate(' + projection([-20, 0]) + ') scale(' + scaleFactor + ')')
+      .text(playbackYear)
+
+    // Play button
+    var controls = chartElement.append('g')
+      .attr('class', 'controls')
+      .attr('transform', 'translate(' + projection([0, -30]) + ') scale(' + scaleFactor + ')')
+
+    if (!isPlaying) {
+      controls.append('polygon')
+        .attr('points', '0,0 0,40 40,20')
+
+      controls.append('text')
+        .attr('dx', 50)
+        .attr('dy', 35)
+        .text('Play')
+
+      var nw = projection([-20, -10]);
+      var se = projection([20, -50]);
+
+      // Click area
+      chartElement.append('rect')
+        .attr('class', 'play')
+        .attr('transform', 'translate(' + nw + ')')
+        .attr('width', se[0] - nw[0])
+        .attr('height', se[1] - nw[1])
+        .attr('rx', isMobile ? 3 : 5)
+        .attr('ry', isMobile ? 3 : 5)
+        .on('click', onPlayButtonClicked);
+    }
 }
 
 $(document).ready(function () {

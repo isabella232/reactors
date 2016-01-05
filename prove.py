@@ -26,6 +26,14 @@ def grid_year(r):
 
     return d.year
 
+def shutdown_year(r):
+    d = r['Permanent Shutdown Date or LTS Date']
+
+    if not d:
+        return None
+
+    return d.year
+
 def main():
     locations = agate.Table.from_csv('locations.csv')
 
@@ -34,7 +42,8 @@ def main():
     reactors = reactors.compute([
         ('simple_name', agate.Formula(agate.Text(), simplify_name)),
         ('construction_year', agate.Formula(agate.Number(), construction_year)),
-        ('grid_year', agate.Formula(agate.Number(), grid_year))
+        ('grid_year', agate.Formula(agate.Number(), grid_year)),
+        ('shutdown_year', agate.Formula(agate.Number(), shutdown_year))
     ])
 
     reactors = reactors.join(locations, 'simple_name', 'name')

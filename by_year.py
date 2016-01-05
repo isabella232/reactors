@@ -24,13 +24,29 @@ def main():
         output['sites'][site] = [float(site_row['lng']), float(site_row['lat'])]
 
     for year in range(1955, 2016):
-        year_sites = {}
+        year_sites = defaultdict(lambda: defaultdict(int))
 
         for row in table.rows:
-            if row['grid_year'] and row['grid_year'] <= year:
-                year_sites[row['simple_name']] += 'operational'
+            # Not even started
+            if not row['construction_year']:
+                continue
 
-        output['years'][year] = [(k, v) for k, v in year_sites.items()]
+            # Under construction
+            if row['construction_year'] <= year:
+                if not row['grid_year'] or row['grid_year'] >= year:
+                    year_sites[row['simple_name']]['construction'] += 1
+                    continue
+
+            # Shutdown
+            if row['shutdown_year'] and row['shutdown_year'] <= year:
+                year_sites[row['simple_name']]['shutdown'] += 1
+                continue
+
+            # Operational
+            if row['grid_year'] and row['grid_year'] <= year:
+                year_sites[row['simple_name']]['operational'] += 1
+
+        output['years'][year] = [[k, v] for k, v in year_sites.items()]
 
     with open('src/data/reactors.json', 'w') as f:
         json.dump(output, f)
