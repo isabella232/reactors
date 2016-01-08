@@ -9,6 +9,42 @@ border-radius()
 /*
  * Thing styles
  */
+ ul#legend
+   padding: 0
+   margin: 0
+   list-style-type: none
+
+   li
+     display: inline-block
+     margin: 0 18px 0 0
+     padding: 0
+     line-height: 15px
+
+     b
+       display: inline-block
+       width: 15px
+       height: 15px
+       margin-right: 6px
+       float: left
+       border: 1px solid $qz-map-graticule
+       border-radius(8px)
+
+     div
+       whitespace: nowrap
+       fill: $qz-gray-2
+       font-size: 12px
+       font-family: 'AdelleSans-Regular', Helvetica, Arial, sans-serif
+       float: left;
+
+     &.construction b
+       background-color: alpha($qz-blue-1, 0.7)
+
+     &.operational b
+       background-color: alpha($qz-purp-1, 0.7)
+
+     &.shutdown b
+       background-color: alpha($qz-purp-4, 0.7)
+
 .item-body h2
   // font-size 1.2em
   // line-height 1.2em
@@ -25,16 +61,19 @@ svg
 
 .reactors
   circle
+    stroke: $qz-map-graticule
+    stroke-width: 1px
+    stroke-opacity: 0.7
     opacity: 0.7
 
     &.construction
       fill: $qz-blue-1
 
-    &.shutdown
-      fill: $qz-purp-4
-
     &.operational
       fill: $qz-purp-1
+
+    &.shutdown
+      fill: $qz-purp-4
 
 text.year
   fill: $qz-gray-2
@@ -70,22 +109,13 @@ div.clear
 @media screen and (max-width: 600px)
   .item-body h2
     font-size 14px
-  //
-  // ul#legend
-  //   li
-  //     margin: 0 12px 0 0
-  //     line-height: 9px
-  //
-  //     b
-  //       width: 9px;
-  //       height: 9px;
-  //       margin-right: 4px
-  //
-  //     div
-  //       font-size: 9px
 
   .borders path
     stroke-width: 0.5px
+
+  rect.play {
+    stroke-width: 1px;
+  }
 
   #footer
     font-size: 60%

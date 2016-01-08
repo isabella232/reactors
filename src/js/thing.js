@@ -167,7 +167,7 @@ function renderMap(config) {
     reactors.selectAll('circle')
       .data(config['year'])
       .enter().append('circle')
-        .attr('r', isMobile ? 1 : 2)
+        .attr('r', isMobile ? 2 : 3)
         .attr('cx', function(d) {
           var coords = config['sites'][d[0]];
 
@@ -212,7 +212,7 @@ function renderMap(config) {
     // Play button
     var controls = chartElement.append('g')
       .attr('class', 'controls')
-      .attr('transform', 'translate(' + projection([0, -30]) + ') scale(' + scaleFactor + ')')
+      .attr('transform', 'translate(' + projection([-15, -12]) + ') scale(' + scaleFactor + ')')
 
     if (!isPlaying) {
       controls.append('polygon')
@@ -223,8 +223,8 @@ function renderMap(config) {
         .attr('dy', 35)
         .text('Play')
 
-      var nw = projection([-20, -10]);
-      var se = projection([20, -50]);
+      var nw = projection([-20, -9]);
+      var se = projection([35, -26]);
 
       // Click area
       chartElement.append('rect')
