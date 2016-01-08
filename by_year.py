@@ -34,17 +34,17 @@ def main():
             # Under construction
             if row['construction_year'] <= year:
                 if not row['grid_year'] or row['grid_year'] >= year:
-                    year_sites[row['simple_name']]['construction'] += 1
+                    year_sites[row['simple_name']]['c'] += 1
                     continue
 
             # Shutdown
             if row['shutdown_year'] and row['shutdown_year'] <= year:
-                year_sites[row['simple_name']]['shutdown'] += 1
+                year_sites[row['simple_name']]['s'] += 1
                 continue
 
             # Operational
             if row['grid_year'] and row['grid_year'] <= year:
-                year_sites[row['simple_name']]['operational'] += 1
+                year_sites[row['simple_name']]['o'] += 1
 
         output['years'][year] = [[k, v] for k, v in year_sites.items()]
 

@@ -188,9 +188,9 @@ function renderMap(config) {
         })
         .attr('class', function(d) {
           var cores = d[1];
-          var construction  = cores['construction'] || 0;
-          var operational = cores['operational'] || 0;
-          var shutdown = cores['shutdown'] || 0;
+          var construction  = cores['c'] || 0;
+          var operational = cores['o'] || 0;
+          var shutdown = cores['s'] || 0;
 
           if (construction > 0) {
             return 'construction';
