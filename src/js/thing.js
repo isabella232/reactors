@@ -172,6 +172,7 @@ function renderMap(config) {
           var coords = config['sites'][d[0]];
 
           if (_.isUndefined(coords)) {
+            console.log(d[0]);
             return 0;
           }
 

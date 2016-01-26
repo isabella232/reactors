@@ -31,6 +31,10 @@ def main():
             if not row['construction_year']:
                 continue
 
+            if row['simple_name'] not in output['sites']:
+                print (row['simple_name'])
+                continue
+
             # Under construction
             if row['construction_year'] <= year:
                 if not row['grid_year'] or row['grid_year'] >= year:
