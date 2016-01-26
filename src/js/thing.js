@@ -164,45 +164,25 @@ function renderMap(config) {
     var reactors = chartElement.append('g')
       .attr('class', 'reactors');
 
-    reactors.selectAll('circle')
-      .data(config['year'])
-      .enter().append('circle')
-        .attr('r', isMobile ? 2 : 3)
-        .attr('cx', function(d) {
-          var coords = config['sites'][d[0]];
+    _.each(['s', 'o', 'c'], function(mode) {
+      var group = reactors.append('g')
+        .attr('class', mode);
 
-          if (_.isUndefined(coords)) {
-            console.log(d[0]);
-            return 0;
-          }
+      group.selectAll('circle')
+        .data(config['year'][mode])
+        .enter().append('circle')
+          .attr('r', isMobile ? 2 : 3)
+          .attr('cx', function(d) {
+            var coords = config['sites'][d];
 
-          return projection(coords)[0];
-        })
-        .attr('cy', function(d) {
-          var coords = config['sites'][d[0]];
+            return projection(coords)[0];
+          })
+          .attr('cy', function(d) {
+            var coords = config['sites'][d];
 
-          if (_.isUndefined(coords)) {
-            return 0;
-          }
-
-          return projection(coords)[1];
-        })
-        .attr('class', function(d) {
-          var cores = d[1];
-          var construction  = cores['c'] || 0;
-          var operational = cores['o'] || 0;
-          var shutdown = cores['s'] || 0;
-
-          if (construction > 0) {
-            return 'construction';
-          } else if (shutdown > 0 && operational == 0) {
-            return 'shutdown';
-          } else {
-            return 'operational';
-          }
-
-          return null;
-        });
+            return projection(coords)[1];
+          })
+    });
 
     // Year display
     chartElement.append('text')

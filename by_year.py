@@ -50,7 +50,25 @@ def main():
             if row['grid_year'] and row['grid_year'] <= year:
                 year_sites[row['simple_name']]['o'] += 1
 
-        output['years'][year] = [[k, v] for k, v in year_sites.items()]
+        year_modes = {
+            'c': [],
+            's': [],
+            'o': []
+        }
+
+        for name, data in year_sites.items():
+            construction  = data.get('c', 0)
+            operational = data.get('o', 0)
+            shutdown = data.get('s', 0)
+
+            if construction > 0:
+                year_modes['c'].append(name)
+            elif shutdown > 0 and operational == 0:
+                year_modes['s'].append(name)
+            else:
+                year_modes['o'].append(name)
+
+        output['years'][year] = year_modes
 
     with open('src/data/reactors.json', 'w') as f:
         json.dump(output, f)
