@@ -41,7 +41,9 @@ function init() {
 }
 
 function onResize() {
-  render()
+  if (!isPlaying) {
+    render();
+  }
 }
 
 function onPlayButtonClicked() {
@@ -171,6 +173,7 @@ function renderMap(config) {
       group.selectAll('circle')
         .data(config['year'][mode])
         .enter().append('circle')
+          .attr('data-name', function(d) { return d; })
           .attr('r', isMobile ? 2 : 3)
           .attr('cx', function(d) {
             var coords = config['sites'][d];
